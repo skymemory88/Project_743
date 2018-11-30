@@ -3,7 +3,6 @@
 #include <iostream>
 #include <cmath>
 #include <ctime>
-#include <chrono>
 
 using namespace std;
 
@@ -17,8 +16,7 @@ int main(int, char **)
     int halo = 1;          //set halo size for the local lattice
     //int local_zsize = 100; //set local lattice size in z direction
 
-    auto t0 = std::chrono::high_resolution_clock::now(); //benchmark time point
-    //clock_t t_start = clock(); //bench mark time point
+     clock_t t_start = clock(); //bench mark time point
 
     lattice<char> grid(local_xsize + 2 * halo, local_ysize + 2 * halo);
     //initialize a local lattice with halo boarder, options: "square", "kagome", "triangular", "circular"
@@ -107,8 +105,7 @@ int main(int, char **)
     else if (round > limit) //stop the program if it doesn't converge
         printf("Evolution round exceeded the limit (%d rounds), simulation terminated and current spin configuration exported.\n", limit);
 
-    std::chrono::duration<double> duration = std::chrono::high_resolution_clock::now() - t0;
-    printf("Time used: %.2f seconds. \n", duration.count()); //print out total time lapsed
+ printf("Time used: %.2f seconds. \n", (float)((clock() - t_start)/CLOCKS_PER_SEC) ); //print out total time lapsed
 
     return 0;
 }

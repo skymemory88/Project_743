@@ -59,7 +59,7 @@ int main(int, char **)
     int NORTH, SOUTH, WEST, EAST; //declare global nearest neighbours
     int NE, NW, SE, SW;           //declare global next nearest neighbours
 
-    int north = RandInt(100);
+    int north = Rand(100);
     int south = north + 5;
     int west = south + 5;
     int east = west + 5;
@@ -109,7 +109,7 @@ int main(int, char **)
     {
         for (int j = halo; j < (grid.ysize - halo); j++)
         {
-            grid(i, j) = std::static_cast<char>((Rand() > 0.5) ? -1 : 1); //randomly assign the spin state on each site
+            grid(i, j) = (char)((Rand() > 0.5) ? -1 : 1); //randomly assign the spin state on each site
         }
     } //randomly assign spin values to the lattice sites
 
@@ -232,7 +232,7 @@ int main(int, char **)
                     if (E_init > 0) //can be replaced with explicit "E_init > E_fin" conditions
                         new_grid(i, j) = -grid(i, j);
                     else if (E_init == 0 && Rand() > 0.5)
-                        new_grid(i, j) = static_cast<char>((Rand(1) > 0.5) ? 1 : -1);
+                        new_grid(i, j) = (char)((Rand(1) > 0.5) ? 1 : -1);
                     else if (E_init < 0 && Rand() < exp(2.0 * K * E_init))
                         new_grid(i, j) = -grid(i, j);
                 }
@@ -246,7 +246,7 @@ int main(int, char **)
                     if (E_init > 0) //can be replaced with explicit "E_init > E_fin" conditions
                         new_grid(i, j) = -grid(i, j);
                     else if (E_init == 0 && Rand() > 0.5)
-                        new_grid(i, j) = static_cast<char>((Rand(1) > 0.5) ? 1 : -1);
+                        new_grid(i, j) = (char)((Rand(1) > 0.5) ? 1 : -1);
                     else if (E_init < 0 && Rand() < exp(2.0 * K * E_init))
                         new_grid(i, j) = -grid(i, j);
                 }
@@ -260,7 +260,7 @@ int main(int, char **)
                     if (E_init > 0) //can be replaced with explicit "E_init > E_fin" conditions
                         new_grid(i, j) = -grid(i, j);
                     else if (E_init == 0 && Rand() > 0.5)
-                        new_grid(i, j) = static_cast<char>((Rand(1) > 0.5) ? 1 : -1);
+                        new_grid(i, j) = (char)((Rand(1) > 0.5) ? 1 : -1);
                     else if (E_init < 0 && Rand() < exp(2.0 * K * E_init))
                         new_grid(i, j) = -grid(i, j);
                 }
@@ -293,7 +293,7 @@ int main(int, char **)
             if (E_init > 0) //can be replaced with explicit "E_init > E_fin" conditions
                 new_grid(i, j) = -grid(i, j);
             else if (E_init == 0 && Rand() > 0.5)
-                new_grid(i, j) = static_cast<char>((Rand(1) > 0.5) ? 1 : -1);
+                new_grid(i, j) = (char)((Rand(1) > 0.5) ? 1 : -1);
             else if (E_init < 0 && Rand() < exp(2.0 * K * E_init))
                 new_grid(i, j) = -grid(i, j);
 

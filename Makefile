@@ -7,8 +7,6 @@ EXE=Ising_model_serial
 all: clean $(EXE)
 
 Ising_model: Ising_model_serial.o mtrand.hpp Lattice.hpp
-#               $(CXX) -o Ising_model_serial Ising_model_serial.cpp $(CXXFLAGS)
-#               chmod +x Ising_model_serial
 
 clean:
-        rm -f $(EXE) 2>&-
+	rm -f $(EXE) Ising_model_serial.o 2>&-

@@ -21,7 +21,7 @@ int main(int, char**)
 
     MPI_Comm cartcomm;
     MPI_Dims_create(proc_num, dimension, pDims);
-    MPI_Cart_create(MPI_COMM_WORLD, dimension, pDims, period, 0, cartcomm);
+    MPI_Cart_create(MPI_COMM_WORLD, dimension, pDims, period, 0, &cartcomm);
 
     MPI_Comm_rank(cartcomm, &myrank);
     MPI_Cart_coords(cartcomm, myrank, dimension, mycoords);

@@ -18,7 +18,6 @@ int main(int, char**)
     
     MPI_Comm cartcomm;
     MPI_Dims_create(proc_num, dimension, pDims);
-    MPI_Cart_create(MPI_COMM_WORLD, dimension, pDims, period, 1, &cartcomm);
 
     int myrank;
     int mycoords[dimension];

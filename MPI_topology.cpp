@@ -6,8 +6,8 @@ int main(int, char**)
     int proc_num;
     int dimension = 2;
     int myrank_init;
-    int pDims[dimension] = {0};
-    int period[dimension] = {0};
+    int pDims[dimension];
+    int period[dimension] = {};
     
     MPI_Init(NULL, NULL);
     MPI_Comm_size(MPI_COMM_WORLD, &proc_num);

@@ -1,0 +1,12 @@
+BOPTIM+=-O3 -march=native
+CXX=g++ #mpicxx/mpiicpc
+CC=g++
+CXXFLAGS+= -Wall -Wextra -fopenmp -std=c++14 $(OPTIM) -g
+EXE=MPI_topology
+
+all: clean $(EXE)
+
+MPI_topology: MPI_topology.o
+
+clean:
+	rm -f $(EXE) MPI_topology.o 2>&-

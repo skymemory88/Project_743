@@ -1,4 +1,4 @@
-BOPTIM+=-O3 -march=native
+OPTIM+=-O3 -march=native
 CXX=g++ #mpicxx/mpiicpc
 CC=g++
 CXXFLAGS+= -Wall -Wextra -fopenmp -std=c++14 $(OPTIM) -g

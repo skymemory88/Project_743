@@ -15,12 +15,13 @@ int main(int, char**)
     
     printf("Total process number: %d. \n", proc_num);
     printf("Current rank: %d.\n", myrank_init);
-    
-    MPI_Comm cartcomm;
-    MPI_Dims_create(proc_num, dimension, pDims);
 
     int myrank;
     int mycoords[dimension];
+
+    MPI_Comm cartcomm;
+    MPI_Dims_create(proc_num, dimension, pDims);
+    MPI_Cart_create(MPI_COMM_WORLD, dimension, pDims, period, 0, cartcomm);
 
     MPI_Comm_rank(cartcomm, &myrank);
     MPI_Cart_coords(cartcomm, myrank, dimension, mycoords);

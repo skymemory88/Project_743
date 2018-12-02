@@ -6,6 +6,7 @@ int main(int, char**)
     int proc_num;
     int dimension = 2;
     int myrank_init;
+    int pDims[dimension] = {0};
 
     MPI_Init(NULL, NULL);
     MPI_Comm_size(MPI_COMM_WORLD, &proc_num)
@@ -14,6 +15,7 @@ int main(int, char**)
     printf("Current rank: %d.\n", myrank_init)
     
     MPI_Comm cartcomm;
+    MPI_Dims_create(proc_num, dimension, pDims);
     MPI_Cart_create(MPI_COMM_WORLD, dimension, pDims, period, 1, &cartcomm);
 
     int myrank;

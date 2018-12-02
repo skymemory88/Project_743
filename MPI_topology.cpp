@@ -24,6 +24,5 @@ int main(int, char**)
     MPI_Comm_rank(cartcomm, &myrank);
     MPI_Cart_coords(cartcomm, myrank, dimension, &mycoords[0]);
     
-
     return 0;
 }

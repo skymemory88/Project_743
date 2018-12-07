@@ -1,12 +1,12 @@
 OPTIM+=-O3 -march=native
 CXX=g++ #mpicxx/mpiicpc
 CC=g++
-CXXFLAGS+= -Wall -Wextra -fopenmp -std=c++14 $(OPTIM) -g
-EXE=Ising_model_serial
+CXXFLAGS+= -Wall -Wextra -std=c++14 $(OPTIM) -g #-fopenmp
+EXE=Ising_model_serial_boolean
 
 all: clean $(EXE)
 
-Ising_model: Ising_model_serial.o mtrand.hpp Lattice.hpp
+Ising_model: Ising_model_serial_boolean.o mtrand.hpp Lattice.hpp
 
 clean:
-	rm -f $(EXE) Ising_model_serial.o 2>&-
+	rm -f $(EXE) Ising_model_serial_boolean.o 2>&-

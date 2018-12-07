@@ -38,17 +38,15 @@ class lattice
         {
             return val[x];
         } //calling for the value in the array
-
         
         T& operator()(int x, int y)
         {
-            return val[this->index(x,y)];
+            return val[index(x,y)];
         } //calling for the value in the array
-
         
         T& operator()(int x, int y, int z)
         {
-            return val[this->index(x,y,z)];
+            return val[index(x,y,z)];
         } //calling for the value in the array
 
         lattice<T>& operator=(const lattice<T> &input)

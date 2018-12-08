@@ -18,6 +18,7 @@ class lattice
 {
     public: 
         std::vector<T> val;
+        std::vector< vector<T> > pos;
         int dimension; //lattice dimension
         int xsize, ysize, zsize; //size of each dimension
         //string format; //lattice format: square, kagome, triangular
@@ -54,6 +55,7 @@ class lattice
             for (size_t i = 0; i < input.val.size(); ++i)
             {
                 val[i] = input.val[i];
+                pos[i] = input.pos[i];
             }
             return *this;
         }
@@ -90,6 +92,16 @@ class lattice
             default:
                 return x + y * xsize + z * xsize * ysize; //default to cubic lattice
             }
+        }
+
+        template <class Type>
+        inline auto dist(Type a, Type b)
+        {
+            auto dx2 = (pos[a][0] - pos[b][0]) * (pos[a][0] - pos[b][0]);
+            auto dy2 = (pos[a][1] - pos[b][1]) * (pos[a][1] - pos[b][1]);
+            auto dz2 = (pos[a][2] - pos[b][2]) * (pos[a][2] - pos[b][2]);
+
+            return sqrt(dx2 + dy2 + dz2);
         }
 };
 

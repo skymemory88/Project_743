@@ -6,28 +6,34 @@
 
 using namespace std;
 
+template<type> inline auto Enn(type* grid(i,j)){return (grid(i + 1, j) + grid(i - 1, j) + grid(i, j + 1) + grid(i, j - 1))};
+//calculate the pseudo-local energy from interactions with the nearest neighbours
+template<type> inline auto Ennn(type* grid(i,j)){return sqrt(0.5) * (grid(i + 1, j + 1) + grid(i - 1, j - 1) + grid(i - 1, j + 1) + grid(i + 1, j - 1))};
+//calculate the pseudo-local energy from interactions with the next nearest neighbours
+
 int main(int, char **)
 {
     mtrand Rand(time(0));
     const int limit = 2000; //set the limit of how may rounds the simulation can evolve
     //const int dimension = 2;     //set space dimension, option: 1,2,3
-    int local_xsize = 1000; //set local lattice size in x direction
-    int local_ysize = 1000; //set local lattice size in y direction
-    int halo = 1;          //set halo size for the local lattice
+    int local_xsize = 100; //set local lattice size in x direction
+    int local_ysize = 100; //set local lattice size in y direction
     //int local_zsize = 100; //set local lattice size in z direction
+    int halo = 1;          //set halo size for the local lattice
+    LatticeForm format = square;
 
     clock_t t_start = clock(); //bench mark time point
 
-    lattice<bool> grid(local_xsize + 2 * halo, local_ysize + 2 * halo);
+    lattice<bool, format> grid(local_xsize + 2 * halo, local_ysize + 2 * halo);
     //initialize a local lattice with halo boarder, options: "square", "kagome", "triangular", "circular"
     printf("Grid size: %d x %d. Halo size: %d.\n", grid.xsize, grid.ysize, halo);
     grid.map("initial", 0);
 
     const float K = 0.1;                        //K contains info regarding coupling strength to thermal fluctuation ratio
     const double epsilon = 4 * (1 + sqrt(0.5)); //define toloerance
-    double E_init = 0.0;           //declare local energy
     double E_old = 0.0;            //declare energy before updates
-    double E_new = 0.0;            //declare energy after upHdates
+    double E_new = 0.0;            //declare energy after updates
+    double E_base = 2 + 2 * sqrt(0.5); //establish zero energy
     int round = 1;                 //parameter to keep track of the iteration cycles
 
     ///////////////////////////////Initialize the lattice///////////////////////////////////
@@ -40,7 +46,7 @@ int main(int, char **)
         }
     } //randomly assign spin values to the lattice sites
 
-    lattice<bool> new_grid = grid; //duplicate the current grid for updating
+    lattice<bool, format> new_grid = grid; //duplicate the current grid for updating
 
     for (int i = halo; i < grid.xsize - halo; i++)
     {
@@ -60,24 +66,29 @@ int main(int, char **)
         {
             for (int j = halo; j < grid.ysize - halo; j++)
             {
-                E_init = -1.0 * grid(i, j) * (grid(i + 1, j) + grid(i - 1, j) + grid(i, j + 1) + grid(i, j - 1)) + -1.0 * sqrt(0.5) * grid(i, j) * (grid(i + 1, j + 1) + grid(i - 1, j - 1) + grid(i - 1, j + 1) + grid(i + 1, j - 1));
-                if (E_init > 0) //can be replaced with explicit "E_init > E_fin" conditions
+                E_local = Enn(&grid(i,j)) + Ennn(&grid(i,j)); //calculate the local energy
+
+                switch (grid(i,j))
                 {
-                    new_grid(i, j) = -grid(i, j);
+                case true: //decides the local spin state
+                    if (E_local < 0)
+                        new_grid(i, j) = -grid(i, j);
                     //printf("Spin flipped! case 1\n");  //checkpoint
+
+                    else if (E_local == 0 && Rand() > 0.5)
+                    {
+                        new_grid(i, j) = ((Rand(1) > 0.5) ? true : false);
+                        // printf("Spin flipped! 50-50!\n");  //checkpoint
+                    }
+                    else if (E_local < 0 && grid(i, j))
+                    {
+                        new_grid(i, j) = (Rand() < exp(-2.0 * K * E_local)) ? -grid(i, j) : grid(i, j);
+                        //if(omp_rank == 0)
+                        //  printf("Spin flipped! case 3. Probability = %.4f.\n", exp(2.0 * E_local)); //checkpoint
+                    }
                 }
-                else if (E_init == 0 && Rand() > 0.5)
-                {
-                    new_grid(i, j) = static_cast<char>((Rand(1) > 0.5) ? 1 : -1);
-                    // printf("Spin flipped! 50-50!\n");  //checkpoint
-                }
-                else if (E_init < 0 && Rand() < exp(2.0 * K * E_init))
-                {
-                    new_grid(i, j) = -grid(i, j);
-                    //if(omp_rank == 0)
-                    //  printf("Spin flipped! case 3. Probability = %.4f.\n", exp(2.0 * E_init)); //checkpoint
-                }
-                //printf("Local energy = %.4e.\n", E_init); //checkpoint
+
+                //printf("Local energy = %.4e.\n", E_local); //checkpoint
             }
         }
         //Metropolis Algorithm to update the spin configuration on the new grid

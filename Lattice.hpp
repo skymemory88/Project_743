@@ -18,7 +18,6 @@ class lattice
 {
     public: 
         std::vector<T> val;
-        std::vector< vector<T> > pos;
         int dimension; //lattice dimension
         int xsize, ysize, zsize; //size of each dimension
         //string format; //lattice format: square, kagome, triangular

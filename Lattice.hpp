@@ -18,6 +18,7 @@ class lattice
 {
     public: 
         std::vector<T> val;
+        std::vector< std::vector<T> > pos;
         int dimension; //lattice dimension
         int xsize, ysize, zsize; //size of each dimension
         //string format; //lattice format: square, kagome, triangular
@@ -49,7 +50,7 @@ class lattice
             return val[index(x,y,z)];
         } //calling for the value in the array
 
-        lattice<T>& operator=(const lattice<T> &input)
+        lattice<T, format>& operator=(const lattice<T, format> &input)
         {
             for (size_t i = 0; i < input.val.size(); ++i)
             {

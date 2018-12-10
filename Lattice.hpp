@@ -49,7 +49,7 @@ class lattice
             return val[index(x,y,z)];
         } //calling for the value in the array
 
-        lattice<T>& operator=(const lattice<T> &input)
+        lattice<T, format>& operator=(const lattice<T, format> &input)
         {
             for (size_t i = 0; i < input.val.size(); ++i)
             {

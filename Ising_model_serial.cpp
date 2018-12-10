@@ -18,7 +18,7 @@ int main(int, char **)
 
      clock_t t_start = clock(); //bench mark time point
 
-    lattice<char, square> grid(local_xsize + 2 * halo, local_ysize + 2 * halo);
+    lattice<char, LatticeForm::square> grid(local_xsize + 2 * halo, local_ysize + 2 * halo);
     //initialize a local lattice with halo boarder, options: "square", "kagome", "triangular", "circular"
     printf("Grid size: %d x %d. Halo size: %d.\n", grid.xsize, grid.ysize, halo);
     grid.map("initial", 0);
@@ -29,7 +29,7 @@ int main(int, char **)
     double E_old = 0.0;            //declare energy before updates
     double E_new = 0.0;            //declare energy after upHdates
     int round = 1;                 //parameter to keep track of the iteration cycles
-    lattice<char, square> new_grid = grid; //duplicate the current grid for updating
+    auto new_grid = grid; //duplicate the current grid for updating
 
     ///////////////////////////////Initialize the lattice///////////////////////////////////
 

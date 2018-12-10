@@ -13,11 +13,12 @@ enum class LatticeForm {
     spherical,
 };
 
-template <class T, LatticeForm format>
+template <class T, LatticeForm format = LatticeForm::square>
 class lattice
 {
     public: 
         std::vector<T> val;
+        std::vector<std::vector<double>> pos;
         int dimension; //lattice dimension
         int xsize, ysize, zsize; //size of each dimension
         //string format; //lattice format: square, kagome, triangular
@@ -49,7 +50,7 @@ class lattice
             return val[index(x,y,z)];
         } //calling for the value in the array
 
-        lattice<T, format>& operator=(const lattice<T, format> &input)
+        lattice& operator=(const lattice &input)
         {
             for (size_t i = 0; i < input.val.size(); ++i)
             {

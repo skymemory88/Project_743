@@ -9,7 +9,7 @@ enum class LatticeForm {
     triangular,
     circular,
     cubic,
-    tetrahedral
+    tetrahedral,
     spherical,
 };
 

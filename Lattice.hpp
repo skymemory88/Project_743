@@ -146,7 +146,7 @@ void lattice<T, format>::map(const std::string title, const int offset)
 {
 		std::string newname = title + ".dat";
 		std::ofstream fout;
-		fout.precision(6);
+		fout.precision();
 		fout.open(newname.c_str());
 		for (int j = offset; j < (ysize - offset); ++j)
 		{

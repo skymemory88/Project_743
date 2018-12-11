@@ -78,7 +78,7 @@ int main(int argc, char **argv)
     { //continue the algorithm until a stable state
         E_old = E_new;
         E_new = 0;
-#pragma omp parallel
+#pragma omp parallel shared(E_old, E_new, new_grid) private(E_site)
         {
             int omp_rank = omp_get_thread_num();
             mtrand Rand(omp_rank);
@@ -104,9 +104,9 @@ int main(int argc, char **argv)
             }
             //Metropolis Algorithm for the inner grid that doesn't rely on the halos
 
+#pragma omp for reduction(+ : E_new) //calculate the total energy of the configuration
             for (int i = halo; i < grid.xsize - halo; i++) //avoid double counting
             {
-#pragma omp for reduction(+ : E_new) //calculate the total energy of the configuration
                 for (int j = halo; j < grid.ysize - halo; j++)
                 {
                     E_new += -1.0 * new_grid(i, j) * (new_grid(i + 1, j) + new_grid(i, j + 1));

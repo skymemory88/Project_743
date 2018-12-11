@@ -10,7 +10,7 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-    if (argc != 4)
+    if (argc != 5)
         throw runtime_error("Incorrect argument number! 1. x_size, 2. y_size, 3. z_size, 4. Round limit.");
     mtrand Rand(time(0));
     //const int dimension = 2;     //set space dimension, option: 1,2,3

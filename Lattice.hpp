@@ -146,7 +146,7 @@ void lattice<T, format>::map(const std::string title, const int offset)
 {
 		std::ofstream fout;
 		fout.precision();
-		fout.open(newname.c_str());
+		fout.open(title.c_str());
 		for (int j = offset; j < (ysize - offset); ++j)
 		{
 			for (int i = offset; i < (xsize - offset); ++i)

@@ -144,7 +144,6 @@ void lattice<T, format>::set_value(int x, int y, int z, T value)
 template<class T, LatticeForm format>
 void lattice<T, format>::map(const std::string title, const int offset)
 {
-		std::string newname = title + ".dat";
 		std::ofstream fout;
 		fout.precision();
 		fout.open(newname.c_str());

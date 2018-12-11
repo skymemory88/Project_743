@@ -50,8 +50,7 @@ int main(int argc, char **argv)
             }
         } //randomly assign spin values to the lattice sites
 
-#pragma omp for reduction(+ \
-                          : E_old)                     //calculate the total energy of the configuration
+#pragma omp for reduction(+ : E_old)                     //calculate the total energy of the configuration
         for (int i = halo; i < grid.xsize - halo; i++) //avoid double counting
         {
             for (int j = halo; j < grid.ysize - halo; j++)
@@ -69,7 +68,7 @@ int main(int argc, char **argv)
     }
 #endif
 
-    grid.map("initial", 0);
+    grid.map("initial.dat", 0);
     auto new_grid = grid; //duplicate the current grid for updating
     ofstream fout;
     fout.precision(6);
@@ -77,10 +76,10 @@ int main(int argc, char **argv)
 
     do
     { //continue the algorithm until a stable state
+        E_old = E_new;
+        E_new = 0;
 #pragma omp parallel
         {
-            E_old = E_new;
-            E_new = 0;
             int omp_rank = omp_get_thread_num();
             mtrand Rand(omp_rank);
 #pragma omp for schedule(static)
@@ -105,9 +104,9 @@ int main(int argc, char **argv)
             }
             //Metropolis Algorithm for the inner grid that doesn't rely on the halos
 
-#pragma omp for reduction(+ : E_new)                         //calculate the total energy of the configuration
             for (int i = halo; i < grid.xsize - halo; i++) //avoid double counting
             {
+#pragma omp for reduction(+ : E_new) //calculate the total energy of the configuration
                 for (int j = halo; j < grid.ysize - halo; j++)
                 {
                     E_new += -1.0 * new_grid(i, j) * (new_grid(i + 1, j) + new_grid(i, j + 1));
@@ -117,7 +116,7 @@ int main(int argc, char **argv)
         // printf("E(next round) = %.4e.\n", E_new); //checkpoint
 
         if (round % (limit / 100) == 0) //report to screen every 100 round of evolution
-            printf("Round %d finished. Current E = %.4f.\n", round, E_new);
+            printf("Round %d finished. Current E = %.2f, last E = %.2f, difference = %.5f.\n", round, E_new, E_old, std::abs(E_new - E_old));
         
         grid = new_grid; //duplicate the current grid for updating
         round++;
@@ -126,7 +125,7 @@ int main(int argc, char **argv)
     if (std::abs(E_new - E_old) < epsilon)
     {
         printf("Energy converged, landscape mapped!\n");
-        grid.map("spin_map", 0);
+        grid.map("spin_map.dat", 0);
     }
     else if (round >= limit) //stop the program if it doesn't converge
         printf("Evolution round exceeded the limit (%d rounds), simulation terminated and current spin configuration exported.\n", limit);

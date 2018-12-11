@@ -42,7 +42,7 @@ int main(int argc, char **argv)
         }
     } //randomly assign spin values to the lattice sites
     
-    grid.map("initial", 0);
+    grid.map("initial.dat", 0);
     auto new_grid = grid; //duplicate the current grid for updating
 
     for (int i = halo; i < grid.xsize - halo; i++)
@@ -108,7 +108,7 @@ int main(int argc, char **argv)
     if (std::abs(E_new - E_old) < epsilon)
     {
         printf("Energy converged, landscape mapped!\n");
-        grid.map("spin_map", 0);
+        grid.map("spin_map.dat", 0);
     }
     else if (round >= limit) //stop the program if it doesn't converge
         printf("Evolution round exceeded the limit (%d rounds), simulation terminated and current spin configuration exported.\n", limit);

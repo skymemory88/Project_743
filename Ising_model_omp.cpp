@@ -50,7 +50,7 @@ int main(int argc, char **argv)
             }
         } //randomly assign spin values to the lattice sites
 
-#pragma omp for reduction(+ : E_old)                     //calculate the total energy of the configuration
+#pragma omp for reduction(+ : E_new)                     //calculate the total energy of the configuration
         for (int i = halo; i < grid.xsize - halo; i++) //avoid double counting
         {
             for (int j = halo; j < grid.ysize - halo; j++)
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
     { //continue the algorithm until a stable state
         E_old = E_new;
         E_new = 0;
-#pragma omp parallel shared(E_old, E_new, new_grid) private(E_site, Rand)
+#pragma omp parallel shared(E_old, E_new, new_grid, grid) private(E_site, Rand)
         {
             int omp_rank = omp_get_thread_num();
             mtrand Rand(omp_rank);

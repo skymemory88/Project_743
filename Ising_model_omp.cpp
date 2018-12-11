@@ -78,11 +78,11 @@ int main(int argc, char **argv)
     { //continue the algorithm until a stable state
         E_old = E_new;
         E_new = 0;
-#pragma omp parallel shared(E_old, E_new, new_grid) private(E_site)
+#pragma omp parallel shared(E_old, E_new, new_grid) private(E_site, Rand)
         {
             int omp_rank = omp_get_thread_num();
             mtrand Rand(omp_rank);
-#pragma omp for schedule(static)
+#pragma omp for schedule(dynamic)
             for (int i = halo; i < grid.xsize - halo; i++)
             {
                 for (int j = halo; j < grid.ysize - halo; j++)

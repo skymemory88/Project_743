@@ -28,12 +28,13 @@ int main(int argc, char **argv)
     double E_site = 0.0;                        //declare local energy
     double E_old = 0.0;                         //declare energy before updates
     double E_new = 0.0;                         //declare energy after upHdates
+    auto new_grid = grid;                       //duplicate the current grid for updating
     int omp_size = omp_get_max_threads();
 
     ///////////////////////////////Initialize the lattice///////////////////////////////////
 
 #ifdef _OPENMP
-#pragma omp parallel shared(E_old, E_new, new_grid, grid) private(E_site, Rand, omp_rank)
+#pragma omp parallel shared(E_old, E_new, new_grid, grid, round) private(E_site)
     {
         int omp_rank = omp_get_thread_num();
         mtrand Rand(omp_rank);
@@ -46,6 +47,7 @@ int main(int argc, char **argv)
                 grid(i, j) = static_cast<signed char>((Rand() > 0.5) ? 1 : -1); //randomly assign the spin state on each site
             }
         } //randomly assign spin values to the lattice sites
+        new_grid = grid;
 
 #pragma omp for reduction(+ : E_new)                     //calculate the total energy of the configuration
         for (int i = halo; i < grid.xsize - halo; i++) //avoid double counting
@@ -65,7 +67,6 @@ int main(int argc, char **argv)
         }
 
         grid.map("initial.dat", 0);
-        auto new_grid = grid; //duplicate the current grid for updating
         int round = 1; //parameter to keep track of the iteration cycles
         ofstream fout;
         fout.precision(6);

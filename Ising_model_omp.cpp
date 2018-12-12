@@ -12,11 +12,9 @@ int main(int argc, char **argv)
 {
     if (argc != 5)
         throw runtime_error("Incorrect argument number! 1. x_size, 2. y_size, 3. z_size, 4. Round limit.");
-    mtrand Rand(time(0));
-    //const int dimension = 2;     //set space dimension, option: 1,2,3
     int local_xsize = atoi(argv[1]); //set local lattice size in x direction
     int local_ysize = atoi(argv[2]); //set local lattice size in y direction
-    //int local_zsize = atoi(argv[3]); //set local lattice size in z direction
+    int local_zsize = atoi(argv[3]); //set local lattice size in z direction
     const int limit = atoi(argv[4]); //set the limit of how may rounds the simulation can evolve
     int halo = 1;                    //set halo size for the local lattice
     clock_t t_start = clock();       //bench mark time point
@@ -30,17 +28,16 @@ int main(int argc, char **argv)
     double E_site = 0.0;                        //declare local energy
     double E_old = 0.0;                         //declare energy before updates
     double E_new = 0.0;                         //declare energy after upHdates
-    int round = 1;                              //parameter to keep track of the iteration cycles
+    int omp_size = omp_get_max_threads();
 
     ///////////////////////////////Initialize the lattice///////////////////////////////////
 
 #ifdef _OPENMP
-#pragma omp parallel
+#pragma omp parallel shared(E_old, E_new, new_grid, grid) private(E_site, Rand, omp_rank)
     {
         int omp_rank = omp_get_thread_num();
-        int omp_size = omp_get_num_threads();
         mtrand Rand(omp_rank);
-#pragma omp for schedule(static) //optional schedule(guided)
+#pragma omp for schedule(dynamic) //optional schedule(guided)
 #endif
         for (int i = halo; i < grid.xsize - halo; i++) //assign values to the grid
         {
@@ -58,30 +55,26 @@ int main(int argc, char **argv)
                 E_new += -1.0 * grid(i, j) * (grid(i + 1, j) + grid(i, j + 1));
             }
         }
+
         ///////////////////////////////start updating algorithm//////////////////////////////
+        
         if (omp_rank == 0)
         {
             cout << "Initial energy: " << E_new << endl;
             printf("Total local thread number: %d.\n", omp_size);
         }
-#ifdef _OPENMP
-    }
-#endif
 
-    grid.map("initial.dat", 0);
-    auto new_grid = grid; //duplicate the current grid for updating
-    ofstream fout;
-    fout.precision(6);
-    fout.open("Global_energy.dat");
+        grid.map("initial.dat", 0);
+        auto new_grid = grid; //duplicate the current grid for updating
+        int round = 1; //parameter to keep track of the iteration cycles
+        ofstream fout;
+        fout.precision(6);
+        fout.open("Global_energy.dat");
 
-    do
-    { //continue the algorithm until a stable state
-        E_old = E_new;
-        E_new = 0;
-#pragma omp parallel shared(E_old, E_new, new_grid, grid) private(E_site, Rand)
-        {
-            int omp_rank = omp_get_thread_num();
-            mtrand Rand(omp_rank);
+        do
+        { //continue the algorithm until a stable state
+            E_old = E_new;
+            E_new = 0;
 #pragma omp for schedule(dynamic)
             for (int i = halo; i < grid.xsize - halo; i++)
             {
@@ -104,7 +97,7 @@ int main(int argc, char **argv)
             }
             //Metropolis Algorithm for the inner grid that doesn't rely on the halos
 
-#pragma omp for reduction(+ : E_new) //calculate the total energy of the configuration
+#pragma omp for reduction(+ : E_new)                         //calculate the total energy of the configuration
             for (int i = halo; i < grid.xsize - halo; i++) //avoid double counting
             {
                 for (int j = halo; j < grid.ysize - halo; j++)
@@ -112,15 +105,17 @@ int main(int argc, char **argv)
                     E_new += -1.0 * new_grid(i, j) * (new_grid(i + 1, j) + new_grid(i, j + 1));
                 }
             }
-        }
-        // printf("E(next round) = %.4e.\n", E_new); //checkpoint
+            // printf("E(next round) = %.4e.\n", E_new); //checkpoint
 
-        if (round % (limit / 100) == 0) //report to screen every 100 round of evolution
-            printf("Round %d finished. Current E = %.2f, last E = %.2f, difference = %.5f.\n", round, E_new, E_old, std::abs(E_new - E_old));
-        
-        grid = new_grid; //duplicate the current grid for updating
-        round++;
-    } while (std::abs(E_new - E_old) > epsilon && round < limit);
+            if (round % (limit / 100) == 0) //report to screen every 100 round of evolution
+                printf("Round %d finished. Current E = %.2f, last E = %.2f, difference = %.5f.\n", round, E_new, E_old, std::abs(E_new - E_old));
+
+            grid = new_grid; //duplicate the current grid for updating
+            round++;
+        } while (std::abs(E_new - E_old) > epsilon && round < limit);
+#ifdef _OPENMP
+    }
+#endif
 
     if (std::abs(E_new - E_old) < epsilon)
     {

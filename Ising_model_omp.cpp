@@ -113,7 +113,7 @@ int main(int argc, char **argv)
 
             grid = new_grid; //duplicate the current grid for updating
             round++;
-        } while (std::abs(E_new - E_old) > epsilon && round < limit);
+        } while (std::abs(E_new - E_old) > epsilon && limit > round);
 #ifdef _OPENMP
     }
 #endif
@@ -123,7 +123,7 @@ int main(int argc, char **argv)
         printf("Energy converged, landscape mapped!\n");
         grid.map("spin_map.dat", 0);
     }
-    else if (round >= limit) //stop the program if it doesn't converge
+    else if (limit <= round) //stop the program if it doesn't converge
         printf("Evolution round exceeded the limit (%d rounds), simulation terminated and current spin configuration exported.\n", limit);
 
     printf("Time used: %.2f seconds. \n", (float)((clock() - t_start) / CLOCKS_PER_SEC)); //print out total time lapsed

@@ -11,7 +11,7 @@ using namespace std;
 int main(int argc, char **argv)
 {
     if (argc != 5)
-        throw runtime_error("Incorrect argument number! 1. x_size, 2. y_size, 3. z_size, 4. Round limit.");
+        throw runtime_error("Incorrect argument number! 1. x_size, 2. y_size, 3. z_size, 4. Round limit.\n");
     const int local_xsize = atoi(argv[1]); //set local lattice size in x direction
     const int local_ysize = atoi(argv[2]); //set local lattice size in y direction
     const int local_zsize = atoi(argv[3]); //set local lattice size in z direction
@@ -68,7 +68,7 @@ int main(int argc, char **argv)
             new_grid = grid; //duplicate the grid for updating sequence
             cout << "Initial energy: " << E_new << endl;
             printf("Total local thread number: %d.\n", omp_size);
-            grid.map("initial.dat", 0);
+            //grid.map("initial.dat", 0);
         }
 
         do
@@ -77,11 +77,12 @@ int main(int argc, char **argv)
             {
                 E_old = E_new;
                 E_new = 0.0;
-                printf("start round %d.", round); //checkpoint for debugging
+                printf("start round %d.\n", round); //checkpoint for debugging
             }
-#pragma omp for schedule(auto)
+
             for (int i = halo; i < grid.xsize - halo; i++)
             {
+#pragma omp for schedule(static)
                 for (int j = halo; j < grid.ysize - halo; j++)
                 {
                     E_site = -1.0 * grid(i, j) * (grid(i + 1, j) + grid(i - 1, j) + grid(i, j + 1) + grid(i, j - 1)) + -1.0 * sqrt(0.5) * grid(i, j) * (grid(i + 1, j + 1) + grid(i - 1, j - 1) + grid(i - 1, j + 1) + grid(i + 1, j - 1));
@@ -103,7 +104,7 @@ int main(int argc, char **argv)
 #pragma omp master
             {
                 grid = new_grid;                             //update the current grid to the new one
-                printf("The %d th update finished!", round); //checkpoint for debugging
+                printf("The %d th update finished!\n", round); //checkpoint for debugging
             }
 
 #pragma omp for reduction(+ : E_new)                         //calculate the total energy of the configuration

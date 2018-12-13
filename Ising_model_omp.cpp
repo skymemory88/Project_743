@@ -12,11 +12,11 @@ int main(int argc, char **argv)
 {
     if (argc != 5)
         throw runtime_error("Incorrect argument number! 1. x_size, 2. y_size, 3. z_size, 4. Round limit.");
-    int local_xsize = atoi(argv[1]); //set local lattice size in x direction
-    int local_ysize = atoi(argv[2]); //set local lattice size in y direction
-    int local_zsize = atoi(argv[3]); //set local lattice size in z direction
-    int limit = atoi(argv[4]); //set the limit of how may rounds the simulation can evolve
-    int halo = 1;                    //set halo size for the local lattice
+    const int local_xsize = atoi(argv[1]); //set local lattice size in x direction
+    const int local_ysize = atoi(argv[2]); //set local lattice size in y direction
+    const int local_zsize = atoi(argv[3]); //set local lattice size in z direction
+    const int limit = atoi(argv[4]); //set the limit of how may rounds the simulation can evolve
+    const int halo = 1;                    //set halo size for the local lattice
     clock_t t_start = clock();       //bench mark time point
 
     lattice<signed char, LatticeForm::square> grid(local_xsize + 2 * halo, local_ysize + 2 * halo);

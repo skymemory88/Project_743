@@ -48,14 +48,14 @@ int main(int argc, char **argv)
                 grid(i, j) = static_cast<signed char>((Rand() > 0.5) ? 1 : -1); //randomly assign the spin state on each site
             }
         } //randomly assign spin values to the lattice sites
-        new_grid = grid;
+        new_grid = grid; //duplicate the grid for updating sequence
 
 #pragma omp for reduction(+ : E_new)                     //calculate the total energy of the configuration
-        for (int i = halo; i < grid.xsize - halo; i++) //avoid double counting
+        for (int i = halo; i < new_grid.xsize - halo; i++) //avoid double counting
         {
-            for (int j = halo; j < grid.ysize - halo; j++)
+            for (int j = halo; j < new_grid.ysize - halo; j++)
             {
-                E_new += -1.0 * grid(i, j) * (grid(i + 1, j) + grid(i, j + 1));
+                E_new += -1.0 * new_grid(i, j) * (new_grid(i + 1, j) + new_grid(i, j + 1));
             }
         }
 
@@ -67,11 +67,13 @@ int main(int argc, char **argv)
             printf("Total local thread number: %d.\n", omp_size);
         }
 
-        grid.map("initial.dat", 0);
-        ofstream fout;
-        fout.precision();
-        fout.open("Global_energy.dat");
-
+#pragma omp master
+        {
+            grid.map("initial.dat", 0);
+            ofstream fout;
+            fout.precision();
+            fout.open("Global_energy.dat");
+        }
         do
         { //continue the algorithm until a stable state
             E_old = E_new;
@@ -97,11 +99,12 @@ int main(int argc, char **argv)
                 }
             }
             //Metropolis Algorithm for the inner grid that doesn't rely on the halos
+            grid = new_grid; //update the current grid to the new one
 
 #pragma omp for reduction(+ : E_new)                         //calculate the total energy of the configuration
-            for (int i = halo; i < grid.xsize - halo; i++) //avoid double counting
+            for (int i = halo; i < new_grid.xsize - halo; i++) //avoid double counting
             {
-                for (int j = halo; j < grid.ysize - halo; j++)
+                for (int j = halo; j < new_grid.ysize - halo; j++)
                 {
                     E_new += -1.0 * new_grid(i, j) * (new_grid(i + 1, j) + new_grid(i, j + 1));
                 }
@@ -109,15 +112,16 @@ int main(int argc, char **argv)
 #pragma omp master
             {
                 if (round % (limit / 100) == 0) //report to screen every 100 round of evolution
+                    fout << round << "\t" << E_new << endl;
                     printf("Round %d finished. Current E = %.2f, last E = %.2f, difference = %.5f.\n", round, E_new, E_old, std::abs(E_new - E_old));
-
-                grid = new_grid; //duplicate the current grid for updating
                 round++;
             }
         } while (std::abs(E_new - E_old) > epsilon && round < limit);
 #ifdef _OPENMP
     }
 #endif
+
+fout.close();
 
     if (std::abs(E_new - E_old) < epsilon)
     {

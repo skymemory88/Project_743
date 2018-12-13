@@ -39,7 +39,7 @@ int main(int argc, char **argv)
     {
         int omp_rank = omp_get_thread_num();
         mtrand Rand(omp_rank);
-#pragma omp for schedule(dynamic) //optional schedule(guided)
+#pragma omp for schedule(auto) //optional schedule(guided)
 #endif
         for (int i = halo; i < grid.xsize - halo; i++) //assign values to the grid
         {
@@ -76,7 +76,7 @@ int main(int argc, char **argv)
         { //continue the algorithm until a stable state
             E_old = E_new;
             E_new = 0;
-#pragma omp for schedule(dynamic)
+#pragma omp for schedule(auto)
             for (int i = halo; i < grid.xsize - halo; i++)
             {
                 for (int j = halo; j < grid.ysize - halo; j++)
@@ -106,13 +106,14 @@ int main(int argc, char **argv)
                     E_new += -1.0 * new_grid(i, j) * (new_grid(i + 1, j) + new_grid(i, j + 1));
                 }
             }
+#pragma omp master
+            {
+                if (round % (limit / 100) == 0) //report to screen every 100 round of evolution
+                    printf("Round %d finished. Current E = %.2f, last E = %.2f, difference = %.5f.\n", round, E_new, E_old, std::abs(E_new - E_old));
 
-            if (round % (limit / 100) == 0 && omp_rank == 0) //report to screen every 100 round of evolution
-                printf("Round %d finished. Current E = %.2f, last E = %.2f, difference = %.5f.\n", round, E_new, E_old, std::abs(E_new - E_old));
-
-            grid = new_grid; //duplicate the current grid for updating
-            if (omp_rank == 0)
+                grid = new_grid; //duplicate the current grid for updating
                 round++;
+            }
         } while (std::abs(E_new - E_old) > epsilon && round < limit);
 #ifdef _OPENMP
     }

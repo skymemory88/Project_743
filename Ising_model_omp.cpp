@@ -67,13 +67,11 @@ int main(int argc, char **argv)
             printf("Total local thread number: %d.\n", omp_size);
         }
 
-#pragma omp master
-        {
-            grid.map("initial.dat", 0);
-            ofstream fout;
-            fout.precision();
-            fout.open("Global_energy.dat");
-        }
+        grid.map("initial.dat", 0);
+        ofstream fout;
+        fout.precision();
+        fout.open("Global_energy.dat");
+
         do
         { //continue the algorithm until a stable state
             E_old = E_new;

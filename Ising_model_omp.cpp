@@ -64,12 +64,12 @@ int main(int argc, char **argv)
 
         ///////////////////////////////start updating algorithm//////////////////////////////
         
-        if (omp_rank == 0)
+#pragma omp master
         {
             cout << "Initial energy: " << E_new << endl;
             printf("Total local thread number: %d.\n", omp_size);
+            grid.map("initial.dat", 0);
         }
-        grid.map("initial.dat", 0);
 
         do
         { //continue the algorithm until a stable state
@@ -106,6 +106,7 @@ int main(int argc, char **argv)
                     E_new += -1.0 * new_grid(i, j) * (new_grid(i + 1, j) + new_grid(i, j + 1));
                 }
             }
+
 #pragma omp master
             {
                 if (round % (limit / 100) == 0) //report to screen every 100 round of evolution

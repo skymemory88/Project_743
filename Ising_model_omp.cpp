@@ -123,7 +123,7 @@ int main(int argc, char **argv)
         printf("Energy converged, landscape mapped!\n");
         grid.map("spin_map.dat", 0);
     }
-    else if (limit <= round) //stop the program if it doesn't converge
+    else if (round >= limit) //stop the program if it doesn't converge
         printf("Evolution round exceeded the limit (%d rounds), simulation terminated and current spin configuration exported.\n", limit);
 
     printf("Time used: %.2f seconds. \n", (float)((clock() - t_start) / CLOCKS_PER_SEC)); //print out total time lapsed

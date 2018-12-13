@@ -68,7 +68,7 @@ int main(int argc, char **argv)
             new_grid = grid; //duplicate the grid for updating sequence
             cout << "Initial energy: " << E_new << endl;
             printf("Total local thread number: %d.\n", omp_size);
-            //grid.map("initial.dat", 0);
+            grid.map("initial.dat", 0);
         }
 
         do
@@ -77,7 +77,7 @@ int main(int argc, char **argv)
             {
                 E_old = E_new;
                 E_new = 0.0;
-                printf("start round %d.\n", round); //checkpoint for debugging
+                //printf("start round %d.\n", round); //checkpoint for debugging
             }
 
             for (int i = halo; i < grid.xsize - halo; i++)
@@ -104,7 +104,7 @@ int main(int argc, char **argv)
 #pragma omp master
             {
                 grid = new_grid;                             //update the current grid to the new one
-                printf("The %d th update finished!\n", round); //checkpoint for debugging
+                //printf("The %d th update finished!\n", round); //checkpoint for debugging
             }
 
 #pragma omp for reduction(+ : E_new)                         //calculate the total energy of the configuration

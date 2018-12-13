@@ -92,7 +92,6 @@ int main(int argc, char **argv)
                 E_new += -1.0 * new_grid(i, j) * (new_grid(i + 1, j) + new_grid(i, j + 1));
             }
         } //calculate the total energy of the new configuration
-        // printf("E(next round) = %.4e.\n", E_new); //checkpoint
 
         if (round % (limit / 100) == 0) //report to screen every 100 round of evolution
         {

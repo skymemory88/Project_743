@@ -16,7 +16,7 @@ int main(int argc, char **argv)
     const int local_ysize = atoi(argv[2]); //set local lattice size in y direction
     const int local_zsize = atoi(argv[3]); //set local lattice size in z direction
     const int limit = atoi(argv[4]); //set the limit of how may rounds the simulation can evolve
-    const int halo = 1;                    //set halo size for the local lattice
+    const int halo = 1;              //set halo size for the local lattice
     clock_t t_start = clock();       //bench mark time point
 
     lattice<signed char, LatticeForm::square> grid(local_xsize + 2 * halo, local_ysize + 2 * halo);
@@ -24,17 +24,18 @@ int main(int argc, char **argv)
     printf("Local grid size: %d x %d.\n", local_xsize, local_ysize);
 
     const float K = 0.1;                        //K contains info regarding coupling strength to thermal fluctuation ratio
-    const double epsilon = 4 * (1 + sqrt(0.5)); //define toloerance
+    const double epsilon = 4.0 * (1.0 + sqrt(0.5)); //define toloerance
     double E_site = 0.0;                        //declare local energy
     double E_old = 0.0;                         //declare energy before updates
     double E_new = 0.0;                         //declare energy after upHdates
     auto new_grid = grid;                       //duplicate the current grid for updating
-    int omp_size = omp_get_max_threads();
+    int omp_size = omp_get_max_threads();   //get the total thread number
+    int round = 1;                         //parameter to keep track of the iteration cycles
 
     ///////////////////////////////Initialize the lattice///////////////////////////////////
 
 #ifdef _OPENMP
-#pragma omp parallel shared(E_old, E_new, new_grid, grid) private(E_site)
+#pragma omp parallel shared(E_old, E_new, new_grid, grid, round) private(E_site)
     {
         int omp_rank = omp_get_thread_num();
         mtrand Rand(omp_rank);
@@ -67,9 +68,8 @@ int main(int argc, char **argv)
         }
 
         grid.map("initial.dat", 0);
-        int round = 1; //parameter to keep track of the iteration cycles
         ofstream fout;
-        fout.precision(6);
+        fout.precision();
         fout.open("Global_energy.dat");
 
         do
@@ -106,13 +106,13 @@ int main(int argc, char **argv)
                     E_new += -1.0 * new_grid(i, j) * (new_grid(i + 1, j) + new_grid(i, j + 1));
                 }
             }
-            // printf("E(next round) = %.4e.\n", E_new); //checkpoint
 
-            if (round % (limit / 100) == 0) //report to screen every 100 round of evolution
+            if (round % (limit / 100) == 0 && omp_rank == 0) //report to screen every 100 round of evolution
                 printf("Round %d finished. Current E = %.2f, last E = %.2f, difference = %.5f.\n", round, E_new, E_old, std::abs(E_new - E_old));
 
             grid = new_grid; //duplicate the current grid for updating
-            round++;
+            if (omp_rank == 0)
+                round++;
         } while (std::abs(E_new - E_old) > epsilon && round < limit);
 #ifdef _OPENMP
     }

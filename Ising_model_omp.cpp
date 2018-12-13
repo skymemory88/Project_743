@@ -15,7 +15,7 @@ int main(int argc, char **argv)
     int local_xsize = atoi(argv[1]); //set local lattice size in x direction
     int local_ysize = atoi(argv[2]); //set local lattice size in y direction
     int local_zsize = atoi(argv[3]); //set local lattice size in z direction
-    const int limit = atoi(argv[4]); //set the limit of how may rounds the simulation can evolve
+    int limit = atoi(argv[4]); //set the limit of how may rounds the simulation can evolve
     int halo = 1;                    //set halo size for the local lattice
     clock_t t_start = clock();       //bench mark time point
 

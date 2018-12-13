@@ -51,7 +51,6 @@ int main(int argc, char **argv)
                 grid(i, j) = static_cast<signed char>((Rand() > 0.5) ? 1 : -1); //randomly assign the spin state on each site
             }
         } //randomly assign spin values to the lattice sites
-        new_grid = grid; //duplicate the grid for updating sequence
 
 #pragma omp for reduction(+ : E_new)                     //calculate the total energy of the configuration
         for (int i = halo; i < new_grid.xsize - halo; i++) //avoid double counting
@@ -66,6 +65,7 @@ int main(int argc, char **argv)
         
 #pragma omp master
         {
+            new_grid = grid; //duplicate the grid for updating sequence
             cout << "Initial energy: " << E_new << endl;
             printf("Total local thread number: %d.\n", omp_size);
             grid.map("initial.dat", 0);
@@ -73,8 +73,11 @@ int main(int argc, char **argv)
 
         do
         { //continue the algorithm until a stable state
-            E_old = E_new;
-            E_new = 0;
+#pragma omp master
+            {
+                E_old = E_new;
+                E_new = 0;
+            }
 #pragma omp for schedule(auto)
             for (int i = halo; i < grid.xsize - halo; i++)
             {
@@ -96,6 +99,7 @@ int main(int argc, char **argv)
                 }
             }
             //Metropolis Algorithm for the inner grid that doesn't rely on the halos
+#pragma omp master
             grid = new_grid; //update the current grid to the new one
 
 #pragma omp for reduction(+ : E_new)                         //calculate the total energy of the configuration

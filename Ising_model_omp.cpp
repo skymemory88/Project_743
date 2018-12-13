@@ -76,7 +76,8 @@ int main(int argc, char **argv)
 #pragma omp master
             {
                 E_old = E_new;
-                E_new = 0;
+                E_new = 0.0;
+                printf("start round %d.", round); //checkpoint for debugging
             }
 #pragma omp for schedule(auto)
             for (int i = halo; i < grid.xsize - halo; i++)
@@ -100,7 +101,10 @@ int main(int argc, char **argv)
             }
             //Metropolis Algorithm for the inner grid that doesn't rely on the halos
 #pragma omp master
-            grid = new_grid; //update the current grid to the new one
+            {
+                grid = new_grid;                             //update the current grid to the new one
+                printf("The %d th update finished!", round); //checkpoint for debugging
+            }
 
 #pragma omp for reduction(+ : E_new)                         //calculate the total energy of the configuration
             for (int i = halo; i < new_grid.xsize - halo; i++) //avoid double counting

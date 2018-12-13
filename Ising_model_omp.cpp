@@ -33,6 +33,7 @@ int main(int argc, char **argv)
     int round = 1;                         //parameter to keep track of the iteration cycles
     ofstream fout;                         //declare an filestream
     fout.precision();                      //set the precision of data to be written
+    fout.open("Global_energy.dat");        //open the file and give a file name
 
     ///////////////////////////////Initialize the lattice///////////////////////////////////
 
@@ -68,7 +69,6 @@ int main(int argc, char **argv)
             cout << "Initial energy: " << E_new << endl;
             printf("Total local thread number: %d.\n", omp_size);
             grid.map("initial.dat", 0);
-            fout.open("Global_energy.dat"); //open the file and give a file name
         }
 
         do
@@ -79,10 +79,9 @@ int main(int argc, char **argv)
                 E_new = 0.0;
                 //printf("start round %d.\n", round); //checkpoint for debugging
             }
-
+#pragma omp for schedule(auto)
             for (int i = halo; i < grid.xsize - halo; i++)
             {
-#pragma omp for schedule(static)
                 for (int j = halo; j < grid.ysize - halo; j++)
                 {
                     E_site = -1.0 * grid(i, j) * (grid(i + 1, j) + grid(i - 1, j) + grid(i, j + 1) + grid(i, j - 1)) + -1.0 * sqrt(0.5) * grid(i, j) * (grid(i + 1, j + 1) + grid(i - 1, j - 1) + grid(i - 1, j + 1) + grid(i + 1, j - 1));

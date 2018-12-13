@@ -31,6 +31,9 @@ int main(int argc, char **argv)
     auto new_grid = grid;                       //duplicate the current grid for updating
     int omp_size = omp_get_max_threads();   //get the total thread number
     int round = 1;                         //parameter to keep track of the iteration cycles
+    ofstream fout;                         //declare an filestream
+    fout.precision();                      //set the precision of data to be written
+    fout.open("Global_energy.dat");        //open the file and give a file name
 
     ///////////////////////////////Initialize the lattice///////////////////////////////////
 
@@ -66,11 +69,7 @@ int main(int argc, char **argv)
             cout << "Initial energy: " << E_new << endl;
             printf("Total local thread number: %d.\n", omp_size);
         }
-
         grid.map("initial.dat", 0);
-        ofstream fout;
-        fout.precision();
-        fout.open("Global_energy.dat");
 
         do
         { //continue the algorithm until a stable state
@@ -110,8 +109,10 @@ int main(int argc, char **argv)
 #pragma omp master
             {
                 if (round % (limit / 100) == 0) //report to screen every 100 round of evolution
+                {
                     fout << round << "\t" << E_new << endl;
                     printf("Round %d finished. Current E = %.2f, last E = %.2f, difference = %.5f.\n", round, E_new, E_old, std::abs(E_new - E_old));
+                }
                 round++;
             }
         } while (std::abs(E_new - E_old) > epsilon && round < limit);

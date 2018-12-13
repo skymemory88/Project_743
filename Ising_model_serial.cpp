@@ -25,7 +25,7 @@ int main(int argc, char **argv)
     printf("Grid size: %d x %d. Halo size: %d.\n", grid.xsize, grid.ysize, halo);
 
     const float K = 0.5;    //K contains info regarding coupling strength to thermal fluctuation ratio
-    const double epsilon = 4 * (1 + sqrt(0.5)); //define toloerance
+    const double epsilon = 4.0 * (1.0 + sqrt(0.5)); //define toloerance
     double E_site = 0.0;           //declare local energy
     double E_old = 0.0;            //declare energy before updates
     double E_new = 0.0;            //declare energy after upHdates

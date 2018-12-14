@@ -52,7 +52,7 @@ int main(int argc, char **argv)
             }
         } //randomly assign spin values to the lattice sites
 
-#pragma omp for reduction(+ : E_new)                     //calculate the total energy of the configuration
+#pragma omp for reduction(+ : E_new) schedule(auto)                     //calculate the total energy of the configuration
         for (int i = halo; i < new_grid.xsize - halo; i++) //avoid double counting
         {
             for (int j = halo; j < new_grid.ysize - halo; j++)
@@ -106,7 +106,7 @@ int main(int argc, char **argv)
                 //printf("The %d th update finished!\n", round); //checkpoint for debugging
             }
 
-#pragma omp for reduction(+ : E_new)                         //calculate the total energy of the configuration
+#pragma omp for reduction(+ : E_new) schedule(auto)                        //calculate the total energy of the configuration
             for (int i = halo; i < new_grid.xsize - halo; i++) //avoid double counting
             {
                 for (int j = halo; j < new_grid.ysize - halo; j++)

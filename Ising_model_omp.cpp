@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     printf("Local grid size: %d x %d.\n", local_xsize, local_ysize);
 
     const float K = 0.2;                        //K contains info regarding coupling strength to thermal fluctuation ratio
-    const double epsilon = 4.0 * (1.0 + sqrt(0.5)); //define toloerance
+    const double epsilon = 2.0 * sqrt(0.5); //define toloerance as the smallest energy difference can be produced, other than zero, by flipping one spin
     double E_site = 0.0;                        //declare local energy
     double E_old = 0.0;                         //declare energy before updates
     double E_new = 0.0;                         //declare energy after upHdates

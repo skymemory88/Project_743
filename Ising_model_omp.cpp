@@ -79,6 +79,7 @@ int main(int argc, char **argv)
                 E_new = 0.0;
                 //printf("start round %d.\n", round); //checkpoint for debugging
             }
+            
 #pragma omp for schedule(auto)
             for (int i = halo; i < grid.xsize - halo; i++)
             {
@@ -94,26 +95,21 @@ int main(int argc, char **argv)
                     {
                         new_grid(i, j) = -grid(i, j);
                         //if(omp_rank == 0)
-                        //  printf("Spin flipped! case 3. Probability = %.4f.\n", exp(2.0 * E_site)); //checkpoint
+                        //  printf("Spin flipped! case 3. Probability = %.4f.\n", exp(2.0 * E_init)); //checkpoint
                     }
                     //printf("Local energy = %.4e.\n", E_site); //checkpoint
                 }
             }
             //Metropolis Algorithm for the inner grid that doesn't rely on the halos
-#pragma omp master
-            {
-                grid = new_grid;                             //update the current grid to the new one
-                //printf("The %d th update finished!\n", round); //checkpoint for debugging
-            }
 
 #pragma omp for reduction(+ : E_new) schedule(auto)                        //calculate the total energy of the configuration
-            for (int i = halo; i < new_grid.xsize - halo; i++) //avoid double counting
+            for (int i = halo; i < grid.xsize - halo; i++)                 //avoid double counting
             {
-                for (int j = halo; j < new_grid.ysize - halo; j++)
+                for (int j = halo; j < grid.ysize - halo; j++)
                 {
                     E_new += -1.0 * new_grid(i, j) * (new_grid(i + 1, j) + new_grid(i, j + 1));
                 }
-            }
+            } //calculate the total energy of the new configuration
 
 #pragma omp master
             {
@@ -122,6 +118,7 @@ int main(int argc, char **argv)
                     fout << round << "\t" << E_new << endl;
                     printf("Round %d finished. Current E = %.2f, last E = %.2f, difference = %.5f.\n", round, E_new, E_old, std::abs(E_new - E_old));
                 }
+                grid = new_grid;                             //update the current grid to the new one
                 round++;
             }
         } while (std::abs(E_new - E_old) > epsilon && round < limit);

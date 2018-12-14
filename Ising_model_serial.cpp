@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     //initialize a local lattice with halo boarder, options: "square", "kagome", "triangular", "circular"
     printf("Grid size: %d x %d. Halo size: %d.\n", grid.xsize, grid.ysize, halo);
 
-    const float K = 0.5;    //K contains info regarding coupling strength to thermal fluctuation ratio
+    const float K = 0.1;    //K contains info regarding coupling strength to thermal fluctuation ratio
     const double epsilon = 4.0 * (1.0 + sqrt(0.5)); //define toloerance
     double E_site = 0.0;           //declare local energy
     double E_old = 0.0;            //declare energy before updates
@@ -45,11 +45,11 @@ int main(int argc, char **argv)
     grid.map("initial.dat", 0);
     auto new_grid = grid; //duplicate the current grid for updating
 
-    for (int i = halo; i < grid.xsize - halo; i++)
+    for (int i = halo; i < new_grid.xsize - halo; i++)
     {
-        for (int j = halo; j < grid.ysize - halo; j++)
+        for (int j = halo; j < new_grid.ysize - halo; j++)
         {
-            E_new += -1.0 * grid(i, j) * (grid(i + 1, j) + grid(i, j + 1)); //avoid doule counting
+            E_new += -1.0 * new_grid(i, j) * (new_grid(i + 1, j) + new_grid(i, j + 1)); //avoid doule counting
         }
     } //calculate the total energy of the initial configuration
     cout << "Initial energy: " << E_new << endl;
@@ -74,7 +74,7 @@ int main(int argc, char **argv)
                     new_grid(i, j) = -grid(i, j);
                     //printf("Spin flipped! case 1\n");  //checkpoint
                 }
-                else if (Rand() <= exp(2.0 * K * E_site))
+                else if (Rand() >= exp(2.0 * K * E_site))
                 {
                     new_grid(i, j) = -grid(i, j);
                     //printf("Spin flipped! case 3. Probability = %.4f.\n", exp(2.0 * E_site)); //checkpoint

@@ -74,12 +74,16 @@ int main(int argc, char **argv)
                     new_grid(i, j) = -grid(i, j);
                     //printf("Spin flipped! case 1\n");  //checkpoint
                 }
-                else if (log( RandDblExc() ) >= 2.0 * K * E_site)
+                else if (log( Rand.randDblExc() ) >= 2.0 * K * E_site)
                 {
                     new_grid(i, j) = -grid(i, j);
                     //printf("Spin flipped! case 3. Probability = %.4f.\n", exp(2.0 * E_site)); //checkpoint
                 }
                 //printf("Local energy = %.4e.\n", E_site); //checkpoint
+                else
+                {
+                    new_grid(i, j) = grid(i, j);
+                }
             }
         }
         //Metropolis Algorithm to update the spin configuration on the new grid

@@ -48,18 +48,18 @@ int main(int argc, char **argv)
         {
             for (int j = halo; j < grid.ysize - halo; j++)
             {
-                grid(i, j) = static_cast<signed char>((Rand() > 0.5) ? 1 : -1); //randomly assign the spin state on each site
+                grid(i, j) = static_cast<signed char>((Rand() > 0.5) ? -1 : 1); //randomly assign the spin state on each site
             }
         } //randomly assign spin values to the lattice sites
 
 #pragma omp for reduction(+ : E_new) schedule(auto)                     //calculate the total energy of the configuration
-        for (int i = halo; i < new_grid.xsize - halo; i++) //avoid double counting
+        for (int i = halo; i < grid.xsize - halo; i++) //avoid double counting
         {
-            for (int j = halo; j < new_grid.ysize - halo; j++)
+            for (int j = halo; j < grid.ysize - halo; j++)
             {
-                E_new += -1.0 * new_grid(i, j) * (new_grid(i + 1, j) + new_grid(i, j + 1));
+                E_new += -1.0 * grid(i, j) * (grid(i + 1, j) + grid(i, j + 1));
             }
-        }
+        } //using the initialized grid to comput the global energy
 
         ///////////////////////////////start updating algorithm//////////////////////////////
         
@@ -75,8 +75,8 @@ int main(int argc, char **argv)
         { //continue the algorithm until a stable state
 #pragma omp master
             {
-                E_old = E_new;
-                E_new = 0.0;
+                E_old = E_new; //pass on the new global energy
+                E_new = 0.0; //reset the global energy for next update
                 //printf("start round %d.\n", round); //checkpoint for debugging
             }
 #pragma omp for schedule(auto)
@@ -90,13 +90,17 @@ int main(int argc, char **argv)
                         new_grid(i, j) = -grid(i, j);
                         //printf("Spin flipped! case 1\n");  //checkpoint
                     }
-                    else if (log( RandDblExc() ) >= 2.0 * K * E_site)
+                    else if (log( Rand.randDblExc() ) >= 2.0 * K * E_site)
                     {
                         new_grid(i, j) = -grid(i, j);
                         //if(omp_rank == 0)
                         //  printf("Spin flipped! case 3. Probability = %.4f.\n", exp(2.0 * E_site)); //checkpoint
                     }
                     //printf("Local energy = %.4e.\n", E_site); //checkpoint
+                    else
+                    {
+                        new_grid(i, j) = grid(i, j);
+                    }
                 }
             }
             //Metropolis Algorithm to update the spin configuration on the new grid

@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     //initialize a local lattice with halo boarder, options: "square", "kagome", "triangular", "circular"
     printf("Grid size: %d x %d. Halo size: %d.\n", grid.xsize, grid.ysize, halo);
 
-    const float K = 0.5;    //K contains info regarding coupling strength to thermal fluctuation ratio
+    const float K = 0.2;    //K contains info regarding coupling strength to thermal fluctuation ratio
     const double epsilon = 4.0 * (1.0 + sqrt(0.5)); //define toloerance
     double E_site = 0.0;           //declare local energy
     double E_old = 0.0;            //declare energy before updates
@@ -109,7 +109,7 @@ int main(int argc, char **argv)
 
     if (std::abs(E_new - E_old) < epsilon)
     {
-        printf("Energy converged, landscape mapped!\n");
+        printf("Energy converged, landscape mapped! total iteration: %d \n", round);
         grid.map("spin_map.dat", 0);
     }
     else if (round >= limit) //stop the program if it doesn't converge

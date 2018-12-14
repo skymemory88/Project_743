@@ -79,7 +79,6 @@ int main(int argc, char **argv)
                 E_new = 0.0;
                 //printf("start round %d.\n", round); //checkpoint for debugging
             }
-            
 #pragma omp for schedule(auto)
             for (int i = halo; i < grid.xsize - halo; i++)
             {
@@ -91,26 +90,24 @@ int main(int argc, char **argv)
                         new_grid(i, j) = -grid(i, j);
                         //printf("Spin flipped! case 1\n");  //checkpoint
                     }
-                    else if (Rand() < exp(2.0 * K * E_site))
+                    else if (Rand() <= exp(2.0 * K * E_site))
                     {
                         new_grid(i, j) = -grid(i, j);
                         //if(omp_rank == 0)
-                        //  printf("Spin flipped! case 3. Probability = %.4f.\n", exp(2.0 * E_init)); //checkpoint
+                        //  printf("Spin flipped! case 3. Probability = %.4f.\n", exp(2.0 * E_site)); //checkpoint
                     }
                     //printf("Local energy = %.4e.\n", E_site); //checkpoint
                 }
             }
-            //Metropolis Algorithm for the inner grid that doesn't rely on the halos
-
+            //Metropolis Algorithm to update the spin configuration on the new grid
 #pragma omp for reduction(+ : E_new) schedule(auto)                        //calculate the total energy of the configuration
-            for (int i = halo; i < grid.xsize - halo; i++)                 //avoid double counting
+            for (int i = halo; i < new_grid.xsize - halo; i++) //avoid double counting
             {
-                for (int j = halo; j < grid.ysize - halo; j++)
+                for (int j = halo; j < new_grid.ysize - halo; j++)
                 {
                     E_new += -1.0 * new_grid(i, j) * (new_grid(i + 1, j) + new_grid(i, j + 1));
                 }
-            } //calculate the total energy of the new configuration
-
+            }
 #pragma omp master
             {
                 if (round % (limit / 100) == 0) //report to screen every 100 round of evolution

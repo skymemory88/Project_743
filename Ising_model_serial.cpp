@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     //initialize a local lattice with halo boarder, options: "square", "kagome", "triangular", "circular"
     printf("Grid size: %d x %d. Halo size: %d.\n", grid.xsize, grid.ysize, halo);
 
-    const float K = 0.1;    //K contains info regarding coupling strength to thermal fluctuation ratio
+    const float K = 0.5;    //K contains info regarding coupling strength to thermal fluctuation ratio
     const double epsilon = 4.0 * (1.0 + sqrt(0.5)); //define toloerance
     double E_site = 0.0;           //declare local energy
     double E_old = 0.0;            //declare energy before updates
@@ -79,18 +79,18 @@ int main(int argc, char **argv)
                     new_grid(i, j) = -grid(i, j);
                     //printf("Spin flipped! case 3. Probability = %.4f.\n", exp(2.0 * E_site)); //checkpoint
                 }
-                //printf("Local energy = %.4e.\n", E_site); //checkpoint
                 else
                 {
                     new_grid(i, j) = grid(i, j);
                 }
+                //printf("Local energy = %.4e.\n", E_site); //checkpoint
             }
         }
         //Metropolis Algorithm to update the spin configuration on the new grid
 
-        for (int i = halo; i < grid.xsize - halo; i++) //avoid double counting
+        for (int i = halo; i < new_grid.xsize - halo; i++) //avoid double counting
         {
-            for (int j = halo; j < grid.ysize - halo; j++)
+            for (int j = halo; j < new_grid.ysize - halo; j++)
             {
                 E_new += -1.0 * new_grid(i, j) * (new_grid(i + 1, j) + new_grid(i, j + 1));
             }
@@ -99,7 +99,7 @@ int main(int argc, char **argv)
         if (round % (limit / 100) == 0) //report to screen every 100 round of evolution
         {
             fout << round << "\t" << E_new << endl;
-            printf("Round %d finished. Current E = %.4f, last E = %.4f.\n", round, E_new, E_old);
+            printf("Round %d finished. Current E = %.2f, last E = %.2f, difference = %.5f.\n", round, E_new, E_old, std::abs(E_new - E_old));
         }
         grid = new_grid; //duplicate the current grid for updating
         round++;

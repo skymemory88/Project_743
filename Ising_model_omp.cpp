@@ -23,7 +23,7 @@ int main(int argc, char **argv)
     //initialize a local lattice with halo boarder, options: "square", "kagome", "triangular", "circular"
     printf("Local grid size: %d x %d.\n", local_xsize, local_ysize);
 
-    const float K = 0.1;                        //K contains info regarding coupling strength to thermal fluctuation ratio
+    const float K = 0.5;                        //K contains info regarding coupling strength to thermal fluctuation ratio
     const double epsilon = 4.0 * (1.0 + sqrt(0.5)); //define toloerance
     double E_site = 0.0;                        //declare local energy
     double E_old = 0.0;                         //declare energy before updates
@@ -59,7 +59,7 @@ int main(int argc, char **argv)
             {
                 E_new += -1.0 * grid(i, j) * (grid(i + 1, j) + grid(i, j + 1));
             }
-        } //using the initialized grid to comput the global energy
+        } //using the initialized grid to compute the global energy
 
         ///////////////////////////////start updating algorithm//////////////////////////////
         

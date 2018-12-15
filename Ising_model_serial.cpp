@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     //initialize a local lattice with halo boarder, options: "square", "kagome", "triangular", "circular"
     printf("Grid size: %d x %d. Halo size: %d.\n", grid.xsize, grid.ysize, halo);
 
-    const float K = 0.5;    //K contains info regarding coupling strength to thermal fluctuation ratio
+    const float K = 0.01;    //K contains info regarding coupling strength to thermal fluctuation ratio
     const double epsilon = 2.0 * sqrt(0.5); //define toloerance as the smallest energy difference can be produced, other than zero, by flipping one spin
     double E_site = 0.0;           //declare local energy
     double E_old = 0.0;            //declare energy before updates
@@ -107,7 +107,7 @@ int main(int argc, char **argv)
 
     fout.close();
 
-    if (std::abs(E_new - E_old) < epsilon)
+    if (std::abs(E_new - E_old) <= epsilon)
     {
         printf("Energy converged, landscape mapped! total iteration: %d \n", round);
         grid.map("spin_map.dat", 0);
@@ -115,7 +115,7 @@ int main(int argc, char **argv)
     else if (round >= limit) //stop the program if it doesn't converge
         printf("Evolution round exceeded the limit (%d rounds), simulation terminated and current spin configuration exported.\n", limit);
 
- printf("Time used: %.2f seconds. \n", (float)((clock() - t_start)/CLOCKS_PER_SEC) ); //print out total time lapsed
+    printf("Time used: %.2f seconds. \n", (float)((clock() - t_start) / CLOCKS_PER_SEC)); //print out total time lapsed
 
     return 0;
 }

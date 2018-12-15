@@ -151,7 +151,7 @@ void lattice<T, format>::map(const std::string title, const int offset)
 		{
 			for (int i = offset; i < (xsize - offset); ++i)
 			{
-				fout << val[index(i, j)] << "\t";
+				fout << (int)val[index(i, j)] << "\t";
 			}
 			fout << std::endl;
 		}

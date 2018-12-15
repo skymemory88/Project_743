@@ -1,6 +1,6 @@
 OPTIM+=-O3 -march=native
-CXX=g++ #mpicxx/mpiicpc
-CC=g++
+CXX=g++-8 #mpicxx/mpiicpc
+CC=g++-8
 CXXFLAGS+= -Wall -Wextra -std=c++14 $(OPTIM) -g #-fopenmp
 EXE=Ising_model_serial
 

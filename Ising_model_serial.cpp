@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     //initialize a local lattice with halo boarder, options: "square", "kagome", "triangular", "circular"
     printf("Grid size: %d x %d. Halo size: %d.\n", grid.xsize, grid.ysize, halo);
 
-    const float K = 0.2;    //K contains info regarding coupling strength to thermal fluctuation ratio
+    const float K = 0.5;    //K contains info regarding coupling strength to thermal fluctuation ratio
     const double epsilon = 2.0 * sqrt(0.5); //define toloerance as the smallest energy difference can be produced, other than zero, by flipping one spin
     double E_site = 0.0;           //declare local energy
     double E_old = 0.0;            //declare energy before updates
@@ -74,7 +74,7 @@ int main(int argc, char **argv)
                     new_grid(i, j) = -grid(i, j);
                     //printf("Spin flipped! case 1\n");  //checkpoint
                 }
-                else if (log( Rand.randDblExc() ) >= 2.0 * K * E_site)
+                else if (Rand() >= exp(2.0 * K * E_site) )
                 {
                     new_grid(i, j) = -grid(i, j);
                     //printf("Spin flipped! case 3. Probability = %.4f.\n", exp(2.0 * E_site)); //checkpoint

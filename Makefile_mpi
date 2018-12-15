@@ -1,0 +1,13 @@
+OPTIM+=-O3 -march=native
+CXX=mpiicpc
+CC=mpiicpc
+CXXFLAGS+= -Wall -Wextra -std=c++14 -g -fopenmp $(OPTIM)
+EXE=Ising_model_mpi
+
+all: clean ${EXE}
+
+${EXE}: ${EXE}
+	${CXX} ${CXXFLAGS} -o ${EXE} ${EXE}.cpp mtrand.hpp Lattice.hpp
+	
+clean:
+	rm -f $(EXE) $(EXE).o 2>&-

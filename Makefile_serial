@@ -1,12 +1,13 @@
 OPTIM+=-O3 -march=native
 CXX=g++-8 #mpicxx/mpiicpc
-CC=g++-8
+CC=gcc-8
 CXXFLAGS+= -Wall -Wextra -std=c++14 $(OPTIM) -g #-fopenmp
 EXE=Ising_model_serial
 
-all: clean $(EXE)
-
-Ising_model_serial: Ising_model_serial.o mtrand.hpp Lattice.hpp
+all: clean ${EXE}
+	  
+$(EXE): ${EXE}.cpp
+	${CXX} ${CXXFLAGS} -o ${EXE} ${EXE}.cpp mtrand.hpp Lattice.hpp
 
 clean:
-	rm -f $(EXE) Ising_model_serial.o 2>&-
+	rm -f ${EXE} ${EXE}.o 2>&-

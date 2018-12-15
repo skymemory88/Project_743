@@ -1,6 +1,6 @@
 OPTIM+=-O3 -march=native
-CXX=mpiicpc
-CC=mpiicpc
+CXX=mpicxx
+CC=mpicxx
 CXXFLAGS+= -Wall -Wextra -std=c++14 -g -fopenmp $(OPTIM)
 EXE=Ising_model_mpi
 

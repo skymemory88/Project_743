@@ -85,7 +85,7 @@ int main(int argc, char **argv)
                 for (int j = halo; j < grid.ysize - halo; j++)
                 {
                     E_site = -1.0 * grid(i, j) * (grid(i + 1, j) + grid(i - 1, j) + grid(i, j + 1) + grid(i, j - 1)) + -1.0 * sqrt(0.5) * grid(i, j) * (grid(i + 1, j + 1) + grid(i - 1, j - 1) + grid(i - 1, j + 1) + grid(i + 1, j - 1));
-                    if (E_site >= 0) //can be replaced with explicit "E_init > E_fin" conditions
+                    if (E_site > 0) //can be replaced with explicit "E_init > E_fin" conditions
                     {
                         new_grid(i, j) = -grid(i, j);
                         //printf("Spin flipped! case 1\n");  //checkpoint

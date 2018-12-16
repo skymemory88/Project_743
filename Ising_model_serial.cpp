@@ -9,8 +9,8 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-    if (argc != 5)
-        throw runtime_error("Incorrect argument number! 1. x_size, 2. y_size, 3. z_size, 4. Round limit.");
+    if (argc != 6)
+        throw runtime_error("Incorrect argument number! 1. x_size, 2. y_size, 3. z_size, 4. Iteration limit, 5. Normalized coupling strength");
     mtrand Rand(time(0));
     //const int dimension = 2;     //set space dimension, option: 1,2,3
     int local_xsize = atoi(argv[1]); //set local lattice size in x direction
@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     //initialize a local lattice with halo boarder, options: "square", "kagome", "triangular", "circular"
     printf("Grid size: %d x %d. Halo size: %d.\n", grid.xsize, grid.ysize, halo);
 
-    const float K = 0.01;    //K contains info regarding coupling strength to thermal fluctuation ratio
+    const double K = atof(argv[5]);     //K contains info regarding coupling strength to thermal fluctuation ratio
     const double epsilon = 2.0 * sqrt(0.5); //define toloerance as the smallest energy difference can be produced, other than zero, by flipping one spin
     double E_site = 0.0;           //declare local energy
     double E_old = 0.0;            //declare energy before updates
@@ -69,14 +69,14 @@ int main(int argc, char **argv)
             for (int j = halo; j < grid.ysize - halo; j++)
             {
                 E_site = -1.0 * grid(i, j) * (grid(i + 1, j) + grid(i - 1, j) + grid(i, j + 1) + grid(i, j - 1)) + -1.0 * sqrt(0.5) * grid(i, j) * (grid(i + 1, j + 1) + grid(i - 1, j - 1) + grid(i - 1, j + 1) + grid(i + 1, j - 1));
-                if (E_site >= 0) //can be replaced with explicit "E_init > E_fin" conditions
+                if (E_site > 0) //can be replaced with explicit "E_init > E_fin" conditions
                 {
                     new_grid(i, j) = -grid(i, j);
                     //printf("Spin flipped! case 1\n");  //checkpoint
                 }
-                else if (Rand() >= exp(2.0 * K * E_site) )
+                else if (E_site < 0)
                 {
-                    new_grid(i, j) = -grid(i, j);
+                    new_grid(i, j) = (Rand() >= exp(2.0 * K * E_site) ? grid(i,j) : -grid(i, j) );
                     //printf("Spin flipped! case 3. Probability = %.4f.\n", exp(2.0 * E_site)); //checkpoint
                 }
                 else
@@ -96,10 +96,10 @@ int main(int argc, char **argv)
             }
         } //calculate the total energy of the new configuration
 
-        if (round % (limit / 100) == 0) //report to screen every 100 round of evolution
+        if (round % (limit / 50) == 0) //report to screen every 100 round of evolution
         {
             fout << round << "\t" << E_new << endl;
-            printf("Round %d finished. Current E = %.2f, last E = %.2f, difference = %.5f.\n", round, E_new, E_old, std::abs(E_new - E_old));
+            printf("Round %d finished. Current E = %.2f, last E = %.2f, difference = %.5f.\n", round, E_new, E_old, E_new - E_old);
         }
         grid = new_grid; //duplicate the current grid for updating
         round++;
@@ -110,11 +110,13 @@ int main(int argc, char **argv)
     if (std::abs(E_new - E_old) <= epsilon)
     {
         printf("Energy converged, landscape mapped! total iteration: %d \n", round);
-        grid.map("spin_map.dat", 0);
+        new_grid.map("spin_map.dat", 0);
     }
     else if (round >= limit) //stop the program if it doesn't converge
+    {
         printf("Evolution round exceeded the limit (%d rounds), simulation terminated and current spin configuration exported.\n", limit);
-
+        new_grid.map("spin_map_current.dat", 0);
+    }
     printf("Time used: %.2f seconds. \n", (float)((clock() - t_start) / CLOCKS_PER_SEC)); //print out total time lapsed
 
     return 0;

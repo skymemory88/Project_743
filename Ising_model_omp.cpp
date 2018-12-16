@@ -10,8 +10,8 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-    if (argc != 5)
-        throw runtime_error("Incorrect argument number! 1. x_size, 2. y_size, 3. z_size, 4. Round limit.\n");
+    if (argc != 6)
+        throw runtime_error("Incorrect argument number! 1. x_size, 2. y_size, 3. z_size, 4. Iteration limit 5. Normalized coupling strength.\n");
     const int local_xsize = atoi(argv[1]); //set local lattice size in x direction
     const int local_ysize = atoi(argv[2]); //set local lattice size in y direction
     //const int local_zsize = atoi(argv[3]); //set local lattice size in z direction
@@ -23,7 +23,7 @@ int main(int argc, char **argv)
     //initialize a local lattice with halo boarder, options: "square", "kagome", "triangular", "circular"
     printf("Local grid size: %d x %d.\n", local_xsize, local_ysize);
 
-    const float K = 0.5;                        //K contains info regarding coupling strength to thermal fluctuation ratio
+    const float K = atof[argv(5)];                        //K contains info regarding coupling strength to thermal fluctuation ratio
     const double epsilon = 2.0 * sqrt(0.5); //define toloerance as the smallest energy difference can be produced, other than zero, by flipping one spin
     double E_site = 0.0;                        //declare local energy
     double E_old = 0.0;                         //declare energy before updates
@@ -90,9 +90,9 @@ int main(int argc, char **argv)
                         new_grid(i, j) = -grid(i, j);
                         //printf("Spin flipped! case 1\n");  //checkpoint
                     }
-                    else if (Rand() >= exp(2.0 * K * E_site) )
+                    else if (E_site < 0)
                     {
-                        new_grid(i, j) = -grid(i, j);
+                        new_grid(i, j) = (Rand() >= exp(2.0 * K * E_site) ? grid(i, j) : -grid(i,j));
                         //if(omp_rank == 0)
                         //  printf("Spin flipped! case 3. Probability = %.4f.\n", exp(2.0 * E_site)); //checkpoint
                     }
@@ -114,7 +114,7 @@ int main(int argc, char **argv)
             }
 #pragma omp master
             {
-                if (round % (limit / 100) == 0) //report to screen every 100 round of evolution
+                if (round % (limit / 50) == 0) //report to screen every 100 round of evolution
                 {
                     fout << round << "\t" << E_new << endl;
                     printf("Round %d finished. Current E = %.2f, last E = %.2f, difference = %.5f.\n", round, E_new, E_old, std::abs(E_new - E_old));
